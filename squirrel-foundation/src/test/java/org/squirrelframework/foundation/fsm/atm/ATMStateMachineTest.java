@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import org.hamcrest.MatcherAssert;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -42,8 +43,7 @@ public class ATMStateMachineTest {
         builder.externalTransition().from(ATMState.InService).to(ATMState.OutOfService).on("Shutdown");
         builder.externalTransition().from(ATMState.InService).to(ATMState.Disconnected).on("ConnectionLost");
         builder.externalTransition().from(ATMState.Disconnected).to(ATMState.InService).on("ConnectionRestored");
-        
-        stateMachine = builder.newStateMachine(ATMState.Idle);
+        stateMachine = builder.newStateMachine(ATMState.Idle);//开始状态，FIXME 状态机持久化，快速重建状态机
     }
     
     @After
@@ -66,15 +66,15 @@ public class ATMStateMachineTest {
         stateMachine.fire("LoadSuccess");
         assertThat(stateMachine.consumeLog(), is(equalTo("exitLoading.transitFromLoadingToInServiceOnLoadSuccess.entryInService")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(ATMState.InService)));
-        
+
         stateMachine.fire("Shutdown");
         assertThat(stateMachine.consumeLog(), is(equalTo("exitInService.transitFromInServiceToOutOfServiceOnShutdown.entryOutOfService")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(ATMState.OutOfService)));
-        
+
         stateMachine.fire("ConnectionLost");
         assertThat(stateMachine.consumeLog(), is(equalTo("exitOutOfService.transitFromOutOfServiceToDisconnectedOnConnectionLost.entryDisconnected")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(ATMState.Disconnected)));
-        
+
         stateMachine.fire("ConnectionRestored");
         assertThat(stateMachine.consumeLog(), is(equalTo("exitDisconnected.transitFromDisconnectedToInServiceOnConnectionRestored.entryInService")));
         assertThat(stateMachine.getCurrentState(), is(equalTo(ATMState.InService)));

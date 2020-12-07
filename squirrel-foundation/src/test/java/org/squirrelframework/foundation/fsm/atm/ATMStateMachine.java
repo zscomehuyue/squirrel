@@ -14,7 +14,9 @@ public class ATMStateMachine extends AbstractStateMachine<ATMStateMachine, ATMSt
     public enum ATMState {
         Idle, Loading, OutOfService, Disconnected, InService
     }
-    
+
+    //FIXME 状态图的拆解，到不同的服务中去；整个状态图的拆分成不同的微服务；
+    //fixme  异步如何使用，实现方式是？
     private StringBuilder logger = new StringBuilder();
     
     public void entryIdle(ATMState from, ATMState to, String event) {
